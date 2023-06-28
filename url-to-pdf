@@ -1,0 +1,21 @@
+function saveWebPageAsPDF() {
+  var folder = DriveApp.getFolderById('FOLDER_ID'); // Replace 'FOLDER_ID' with the ID of the folder containing your file
+  var file = folder.getFilesByName('list.md').next(); // Replace 'list.md' with the name of your file
+  var content = file.getBlob().getDataAsString();
+  var urls = content.split('\n'); // This assumes that the URLs are separated by newlines
+  
+  var outputFolder = DriveApp.createFolder('WebPagesAsPDFs');
+  
+  for (var i = 0; i < urls.length; i++) {
+    var url = urls[i];
+    var response = UrlFetchApp.fetch(url);
+    
+    // Check if the request was successful
+    if (response.getResponseCode() == 200) {
+      var blob = response.getBlob();
+      var outputFile = outputFolder.createFile(blob).setName("WebPage" + i + ".pdf");
+      outputFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      Logger.log('File created with public link: ' + outputFile.getUrl());
+    }
+  }
+}
